@@ -19,7 +19,7 @@
 from logging import basicConfig
 from sys import version_info
 
-# Import from feedstail
+# Import from jsontail
 from utils import Storage
 
 
@@ -33,13 +33,13 @@ class Config(Storage):
         self.number = kwargs.get('number', None)
         self.ignore_key_error = kwargs.get('ignore_key_error', False)
         self.no_endl = kwargs.get('no_endl', False)
-	self.url = kwargs.get('url', None)
+        self.url = kwargs.get('url', None)
 
         if version_info < (2, 6):
             self.format = kwargs.get('format', u'Title: %(title)s')
-            self.formatFct = format = lambda entry: self.format % entry
+            self.formatFct = lambda entry: self.format % entry
         else:
-            self.format = kwargs.get('format', u'Title: {title}') 
+            self.format = kwargs.get('format', u'Title: {title}')
             self.formatFct = lambda entry: self.format.format(**entry)
 
 basicConfig(format='%(levelname)s: %(message)s')

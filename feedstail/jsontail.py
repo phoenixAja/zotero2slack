@@ -18,8 +18,7 @@
 # Import from the standard library
 import re
 
-# Import from FeedParser
-from feedparser import parse
+import requests
 from config import Config
 
 def isnew(tail, config, entry):
@@ -48,7 +47,7 @@ def feedGenerator(config):
     def cycle(tail, number=None):
         result = []
         try:
-            entries = parse(config.url, agent="FeedsTail/0.* +https://gitorious.org/feedstail").entries
+            entries = requests.get(config.url).json()
         except MemoryError:
             return
 

@@ -1,16 +1,18 @@
-Feedstail
+jsontail
 =========
 
-Feedstail is a tail-f-like utility for feeds. It monitor a feed and emits new entries.
-Feedstail aim to be simple, hackable and compatible with rsstail_ its C brother.
+`Feedstail`_ is a tail-f-like utility for feeds. It aims to be hackable, and I'm hacking it
+to read JSON instead of RSS.
 
-.. _rsstail : http://www.vanheusden.com/rsstail/
+I have a specific use-case in mind here: I want to read the JSON feed
+of a Zotero library and feed it into Slack.
 
+.. _Feedstail : https://github.com/Psycojoker/feedstail
 
 License
 -------
 
-Feedstail is released under the terms of the `GNU General Public License v3`_ or later.
+Feedstail and jsontail are both released under the terms of the `GNU General Public License v3`_ or later.
 
 .. _GNU General Public License v3 : http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -18,86 +20,66 @@ Feedstail is released under the terms of the `GNU General Public License v3`_ or
 Get started
 -----------
 
-Use pip to install feedstail the easy way:
+Retrieve the project with git and install it:
 
 ::
 
-  $ pip install feedstail
-
-Or retrieve the project with git and install it:
-
-::
-
-  $ git clone https://github.com/Psycojoker/feedstail.git
+  $ git clone https://github.com/jamestwebber/feedstail.git
   $ cd feedstail
   $ python setup.py install
 
-Then, launch feedstail with a random feeds to test it:
+Then, launch jsontail with a random feed to test it:
 
 ::
 
-  $ feedstail -u http://hackeragenda.be/events/events.rss
+  $ jsontail -u https://api.zotero.org/groups/200000/items/top?start=0&limit=5&format=json
 
 Examples
 --------
 
-By default, feedstail will checkout the feeds every 15 minutes. If you
+By default, jsontail will checkout the feeds every 15 minutes. If you
 want to customize this interval you can use the ``i`` option.
 The following example will retrieve feeds every 5 seconds:
 
 ::
 
-  $ feedstail -u http://hackeragenda.be/events/events.rss -i 5
+  $ jsontail -u [feed url] -i 5
 
 
-The default output format may not be ok for you. You can specify your
-own format using the ``f`` option. The given fields must be an
-available property of the feed entries.
-The following example will output the published date, the title and the link:
-
-::
-
-  $ feedstail -u http://hackeragenda.be/events/events.rss -f "{published}: {title} - {link}"
-
-This last example use the string formatting syntax appeared in the 2.6
-version of Python.
-However, feedstail aim to be 2.5 compatible so you can use the old
-string formatting syntax:
+Formatting a JSON feed is a bit trickier than dealing with RSS. Because
+the data you're receiving can be some arbitrary structure, I'm going to punt
+on formatting it. Instead, you should point to a python file containing
+your own formatting function, called "format_json".
 
 ::
 
-  $ feedstail -u http://hackeragenda.be/events/events.rss -f "%(published)s: %(title)s - %(link)s"
+  $ jsontail -f my_formatter.py
+  $ cat my_formatter.py
+  def format_json(entry):
+      return '{title} - {url}'.format(**entry['data'])
 
 
 Feedstail compares the ``id`` element to find new entries. You can
 choose another element of comparison with the ``k`` option.
-The following example says to feedstail to use the title to find new
+The following example says to feedstail to use 'key' to find new
 entries:
 
 ::
 
-  $ feedstail -u http://hackeragenda.be/events/events.rss -i 2 -k title
-
-
-
-As feedstail is built above `feedparser`_, the available values of
-format fields and keys can be found in `the documentation of the library`_.
-
-.. _`feedparser` : https://pythonhosted.org/feedparser/
-.. _`the documentation of the library` : https://pythonhosted.org/feedparser/
+  $ jsontail -u [feed url] -i 2 -k key
 
 
 Importing to other python project
 ---------------------------------
 
-Feedstail could be imported to another python project with:
+Jsontail could (probably?) be imported to another python project with:
 ::
 
-   from feedstail import feedGenerator
-   from feedstail.config import Config
+   from jsontail import feedGenerator
+   from jsontail.config import Config
 
 Options :
-   * key : The comparaison key. By default: ``id``
+   * key : The comparison key. By default: ``id``
    * reverse : Boolean value for reversing the entries of the feed. By default: False
    * number : At the first time, show x entries. By default, it is None and shows all the received entries.
    * ignore_key_error : Boolean value for ignore keys errors. By default: False
@@ -115,16 +97,16 @@ an array of entries (could be an empty array) with the defined format.
 Example:
 ::
 
-   from feedstail import feedGenerator
-   from feedstail.config import Config
+   from jsontail import feedGenerator
+   from jsontail.config import Config
 
-   feed = feedGenerator(Config(url="http://hackeragenda.be/events/events.rss", format=u'{title} - {link}'))
+   feed = feedGenerator(Config(format=u'{title} - {link}'))
    print '\n'.join(feed.next())
 
 Contribute !
 ------------
 
-- Fork the project: `https://github.com/Psycojoker/feedstail.git`_
+- Fork the project: `https://github.com/jamestwebber/jsontail.git`_
 - Create your patch in a topic branch
 - Send pull requests or send your patches via e-mail
 
@@ -135,4 +117,4 @@ Don't forget to mark your commits by one of the following flag:
 - [doc]: Your commit improve the documentation
 - [mod]: Your commit bring general changes, matching neither of the above, like refactoring
 
-.. _`https://github.com/Psycojoker/feedstail.git` : https://github.com/Psycojoker/feedstail.git
+.. _`https://github.com/jamestwebber/jsontail.git` : https://github.com/jamestwebber/jsontail.git
