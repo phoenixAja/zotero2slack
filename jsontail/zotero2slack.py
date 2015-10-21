@@ -7,12 +7,9 @@ import requests
 # this formats a JSON entry and makes a nice Slack message with
 # the person who added it, the paper title and journal, and a link
 def format_json(entry):
-    if 'creator' in entry['data']:
-        return '{creator} added <{url}|{title}> - {journalAbbreviation}'.format(
-            creator=entry['meta']['createdByUser']['name'], **entry['data'])
-    else:
-        return '{username} added <{url}|{title}> - {journalAbbreviation}'.format(
-            creator=entry['meta']['createdByUser']['name'], **entry['data'])
+    return '{creator} added <{url}|{title}> - {journalAbbreviation}'.format(
+        creator=entry['meta']['createdByUser'].get('name', entry['meta']['createdByUser']['username']),
+        **entry['data'])
 
 
 # this is a hook for taking the new entries and sending them to a Slack app
