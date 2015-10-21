@@ -55,6 +55,7 @@ if __name__ == '__main__':
 
     # Non standards rsstail parameters
     parser.add_argument('-f', '--format', help='define your output format')
+    parser.add_argument('-o', '--output', help='hook for processing output')
     parser.add_argument('-k', '--key', default='id',
                         help='use KEY to find new entries')
     parser.add_argument('-r', '--reverse', action='store_true',
@@ -82,14 +83,20 @@ if __name__ == '__main__':
     config.ignore_key_error = options.ignore_key_error
     config.no_endl = options.no_endl
 
+    if options.output:
+        m = importlib.import_module(options.format)
+        output_hook = m.output_entries
+    else:
+        output_hook = writeEntries
+
     if options.url:
         config.url = options.url
         try:
             gen = feedGenerator(config)
-            writeEntries(gen.next())
+            output_hook(gen.next())
             while not config.oneshot:
                  sleep(config.interval)
-                 writeEntries(gen.next())            
+                 output_hook(gen.next())
 
         except FeedKeyError, key:
             error('The %s property is not available for this feed.' % key)
