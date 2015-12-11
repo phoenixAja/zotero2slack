@@ -66,6 +66,8 @@ if __name__ == '__main__':
                         help='don\'t stop if a key error is encountered')
     parser.add_argument('-e', '--no-endl', action='store_true',
                         help='remove carriage return')
+    parser.add_argument('-c', '--cache',
+                        help='file to store most recent posts')
 
     options = parser.parse_args()
 
@@ -84,8 +86,11 @@ if __name__ == '__main__':
     config.no_endl = options.no_endl
 
     if options.output:
-        m = importlib.import_module(options.format)
-        output_hook = m.output_entries
+        m = importlib.import_module(options.output)
+        if options.cache:
+            output_hook = lambda e: m.output_entries(e, options.cache)
+        else:
+            output_hook = m.output_entries
     else:
         output_hook = writeEntries
 
@@ -104,4 +109,3 @@ if __name__ == '__main__':
     else:
         parser.print_help()
         exit(0)
-

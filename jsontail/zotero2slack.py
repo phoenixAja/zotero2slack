@@ -14,7 +14,17 @@ def format_json(entry):
 
 # this is a hook for taking the new entries and sending them to a Slack app
 # that will post them in the chat.
-def output_entries(entries):
+def output_entries(entries, cachefile=None):
+    if cachefile is not None:
+        with open(cachefile) as f:
+            recent = [line.strip() for line in f]
+
     for entry in entries:
-        payload = {'channel': '#general', 'username': 'Zotero', 'text': entry}
-        requests.post(url=os.environ['SLACK_WEBHOOK'], json=payload)
+        if entry not in recent:
+            payload = {'channel': '#general', 'username': 'Zotero', 'text': entry}
+            requests.post(url=os.environ['SLACK_WEBHOOK'], json=payload)
+            recent.append(entry)
+
+    if cachefile is not None:
+        with open(cachefile, 'w') as OUT:
+            print >> OUT, '\n'.join(entries[-5:])
