@@ -27,4 +27,4 @@ def output_entries(entries, cachefile=None):
 
     if cachefile is not None:
         with open(cachefile, 'w') as OUT:
-            print >> OUT, '\n'.join(entries[-5:])
+            print >> OUT, '\n'.join(recent[-5:])
