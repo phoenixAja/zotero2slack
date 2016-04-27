@@ -8,7 +8,7 @@ import requests
 # the person who added it, the paper title and journal, and a link
 def format_json(entry):
     name = entry['meta']['createdByUser']['name'] or entry['meta']['createdByUser']['username']
-    return '{creator} added <{url}|{title}> - {journalAbbreviation}'.format(
+    return u'{creator} added <{url}|{title}> - {journalAbbreviation}'.format(
         creator=name, **entry['data'])
 
 
