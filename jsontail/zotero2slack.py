@@ -18,7 +18,7 @@ def format_json(entry):
 def output_entries(entries, cachefile=None):
     if cachefile is not None:
         with open(cachefile) as f:
-            recent = [line.strip() for line in f]
+            recent = [line[:-1] for line in f]
 
     for entry in entries:
         if entry not in recent:
