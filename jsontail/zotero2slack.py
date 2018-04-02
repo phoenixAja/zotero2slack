@@ -22,7 +22,9 @@ def output_entries(entries, cachefile=None):
 
     for entry in entries:
         if entry not in recent:
-            payload = {'channel': '#general', 'username': 'Zotero', 'text': entry}
+            payload = {'channel': os.environ['SLACK_CHANNEL'],
+                       'username': os.environ['SLACK_USER'],
+                       'text': entry}
             requests.post(url=os.environ['SLACK_WEBHOOK'], json=payload)
             recent.append(entry)
 
