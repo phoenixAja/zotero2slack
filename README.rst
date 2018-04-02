@@ -25,7 +25,7 @@ Retrieve the project with git and install it:
 ::
 
   $ git clone https://github.com/jamestwebber/jsontail.git
-  $ cd feedstail
+  $ cd jsontail
   $ python setup.py install
 
 Then, launch jsontail with a random feed to test it:
