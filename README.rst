@@ -24,7 +24,7 @@ Retrieve the project with git and install it:
 
 ::
 
-  $ git clone https://github.com/jamestwebber/feedstail.git
+  $ git clone https://github.com/jamestwebber/jsontail.git
   $ cd feedstail
   $ python setup.py install
 
