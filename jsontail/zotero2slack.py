@@ -4,25 +4,28 @@
 import os
 import requests
 
+from html2text import html2text
+
 # this formats a JSON entry and makes a nice Slack message with
 # the person who added it, the paper title and journal, and a link
 def format_json(entry):
-    name = (entry['meta']['createdByUser']['name'] 
-            or entry['meta']['createdByUser']['username']
-            or 'somebody')
-    journal = (entry['data'].get('journalAbbreviation', '')
-               or entry['data'].get('publicationTitle', '') 
-               or 'some journal')
-
-    if 'url' in entry['data']:
-        return u'{creator} added <{url}|{title}> - {journal}'.format(
-            creator=name, journal=journal, **entry['data'])
-    elif 'DOI' in entry['data']:
-        return u'{creator} added <http://dx.doi.org/{DOI}|{title}> - {journal}'.format(
-            creator=name, journal=journal, **entry['data'])
+    name = html2text(entry['meta']['createdByUser']['name'] 
+                     or entry['meta']['createdByUser']['username']
+                     or 'somebody').strip()
+    journal = html2text(entry['data'].get('journalAbbreviation', '')
+                        or entry['data'].get('publicationTitle', '')
+                        or 'some journal').strip()
+    paper_title = html2text(entry['data']['title']).strip()
+    
+    if 'url' in entry['data'] and entry['data']['url']:
+        return u'{creator} added <{url}|{paper_title}> - {journal}'.format(
+            creator=name, journal=journal, paper_title=paper_title, **entry['data'])
+    elif 'DOI' in entry['data'] and entry['data']['DOI']:
+        return u'{creator} added <http://dx.doi.org/{DOI}|{paper_title}> - {journal}'.format(
+            creator=name, journal=journal, paper_title=paper_title, **entry['data'])
     else:
-        return u'{creator} added {title} - {journal}'.format(
-            creator=name, journal=journal, **entry['data'])
+        return u'{creator} added {paper_title} - {journal}'.format(
+            creator=name, journal=journal, paper_title=paper_title, **entry['data'])
 
 
 # this is a hook for taking the new entries and sending them to a Slack app
