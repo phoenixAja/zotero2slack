@@ -4,19 +4,22 @@
 import os
 import requests
 
-from html2text import html2text
+import html2text
+
+text_maker = html2text.HTML2Text()
+text_maker.body_width = 0
 
 # this formats a JSON entry and makes a nice Slack message with
 # the person who added it, the paper title and journal, and a link
 def format_json(entry):
-    name = html2text(entry['meta']['createdByUser']['name'] 
-                     or entry['meta']['createdByUser']['username']
-                     or 'somebody').strip()
-    journal = html2text(entry['data'].get('journalAbbreviation', '')
-                        or entry['data'].get('publicationTitle', '')
-                        or 'some journal').strip()
-    paper_title = html2text(entry['data']['title']).strip()
-    
+    name = text_maker.handle(entry['meta']['createdByUser']['name']
+                             or entry['meta']['createdByUser']['username']
+                             or 'somebody').strip()
+    journal = text_maker.handle(entry['data'].get('journalAbbreviation', '')
+                                or entry['data'].get('publicationTitle', '')
+                                or 'some journal').strip()
+    paper_title = text_maker.handle(entry['data']['title']).strip()
+
     if 'url' in entry['data'] and entry['data']['url']:
         return u'{creator} added <{url}|{paper_title}> - {journal}'.format(
             creator=name, journal=journal, paper_title=paper_title, **entry['data'])
