@@ -3,8 +3,6 @@
 
 import pathlib
 
-from collections import defaultdict
-
 import click
 import html2text
 import requests
@@ -97,7 +95,7 @@ def main(config_file, build_cache):
         with cache_file.open() as f:
             cache = yaml.load(f)
     else:
-        cache = defaultdict(list)
+        cache = dict()
 
     feed_gens = dict()
 
@@ -106,7 +104,7 @@ def main(config_file, build_cache):
             feed["user"],
             feed["url"],
             feed["channel"],
-            most_recent=cache[feed["user"]],
+            most_recent=cache.get(feed["user"], []),
             keep=keep,
         )
 
