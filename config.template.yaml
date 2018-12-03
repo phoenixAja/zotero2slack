@@ -1,4 +1,3 @@
-slack_webhook: "url/key to post to slack"
 cache_file: /path/to/cache_file
 interval: 900 # seconds between updates
 keep: 10 # articles to keep in cache
@@ -6,9 +5,12 @@ feeds:
   - user: "username to post with"
     url: "url of zotero feed"
     channel: "channel to post to"
+    webhook: "url/key to post to slack"
   - user: "username to post with"
     url: "url of zotero feed"
     channel: "channel to post to"
+    webhook: "url/key to post to slack"
   - user: "username to post with"
     url: "url of zotero feed"
     channel: "channel to post to"
+    webhook: "url/key to post to slack"

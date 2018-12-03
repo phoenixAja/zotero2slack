@@ -29,24 +29,19 @@ def format_json(entry):
     paper_title = text_maker.handle(entry["data"]["title"]).strip()
 
     if "url" in entry["data"] and entry["data"]["url"]:
-        return "{creator} added <{url}|{paper_title}> - {journal}".format(
-            creator=name, journal=journal, paper_title=paper_title, **entry["data"]
-        )
+        return f"{name} added <{entry['data']['url']}|{paper_title}> - {journal}"
     elif "DOI" in entry["data"] and entry["data"]["DOI"]:
-        return "{creator} added <http://dx.doi.org/{DOI}|{paper_title}> - {journal}".format(
-            creator=name, journal=journal, paper_title=paper_title, **entry["data"]
-        )
+        return f"{name} added <http://dx.doi.org/{entry['data']['DOI']}|{paper_title}> - {journal}"
     else:
-        return "{creator} added {paper_title} - {journal}".format(
-            creator=name, journal=journal, paper_title=paper_title, **entry["data"]
-        )
+        return f"{creator} added {paper_title} - {journal}"
 
 
 class FeedGenerator(object):
-    def __init__(self, user, url, channel, most_recent=None, keep=10):
+    def __init__(self, user, url, channel, webhook, most_recent=None, keep=10):
         self.user = user
         self.url = url
         self.channel = channel
+        self.webhook = webhook
 
         self.most_recent = most_recent or []
         self.keep = keep
@@ -64,10 +59,10 @@ class FeedGenerator(object):
 
         return res
 
-    def post(self, entries, webhook):
-        for entry in entries:
+    def post(self):
+        for entry in self.get_new():
             payload = {"channel": self.channel, "username": self.user, "text": entry}
-            requests.post(url=webhook, json=payload)
+            requests.post(url=self.webhook, json=payload)
 
 
 @click.command()
@@ -104,6 +99,7 @@ def main(config_file, build_cache):
             feed["user"],
             feed["url"],
             feed["channel"],
+            feed["webhook"],
             most_recent=cache.get(feed["user"], []),
             keep=keep,
         )
@@ -120,7 +116,7 @@ def main(config_file, build_cache):
     try:
         while True:
             for user, feed_gen in feed_gens.items():
-                output_entries(feed_gen.get_new(), config["slack_webhook"])
+                feed_gen.post()
                 cache[user] = feed_gen.most_recent
             sleep(interval)
     finally:
