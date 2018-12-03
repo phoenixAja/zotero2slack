@@ -101,7 +101,11 @@ def main(config_file, build_cache):
 
     for feed in config["feeds"]:
         feed_gens[feed["user"]] = FeedGenerator(
-            feed["user"], feed["url"], feed["channel"], most_recent=cache[feed["user"]], keep=keep
+            feed["user"],
+            feed["url"],
+            feed["channel"],
+            most_recent=cache[feed["user"]],
+            keep=keep,
         )
 
     if build_cache:
