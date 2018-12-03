@@ -62,7 +62,7 @@ class FeedGenerator(object):
                 res.append(entry)
                 self.most_recent.append(entry)
 
-        self.most_recent = most_recent[-self.keep :]
+        self.most_recent = self.most_recent[-self.keep :]
 
         return res
 
