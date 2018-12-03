@@ -2,6 +2,7 @@
 # and writing them out to Slack
 
 import pathlib
+import time
 
 import click
 import html2text
@@ -118,7 +119,7 @@ def main(config_file, build_cache):
             for user, feed_gen in feed_gens.items():
                 feed_gen.post()
                 cache[user] = feed_gen.most_recent
-            sleep(interval)
+            time.sleep(interval)
     finally:
         with cache_file.open("w") as out:
             yaml.dump(cache, out, default_flow_style=False)
