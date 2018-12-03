@@ -6,10 +6,7 @@ It was originally based on [Feedstail](https://github.com/Psycojoker/feedstail) 
 
 ### License
 
-zotero2slack is released under the terms of the `GNU General Public License v3`_ or later.
-
-.. _GNU General Public License v3 : http://www.gnu.org/licenses/gpl-3.0.html
-
+zotero2slack is released under the terms of the [GNU General Public License v3](http://www.gnu.org/licenses/gpl-3.0.html) or later.
 
 ### Get started
 
