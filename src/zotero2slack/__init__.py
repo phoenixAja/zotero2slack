@@ -33,7 +33,7 @@ def format_json(entry):
     elif "DOI" in entry["data"] and entry["data"]["DOI"]:
         return f"{name} added <http://dx.doi.org/{entry['data']['DOI']}|{paper_title}> - {journal}"
     else:
-        return f"{creator} added {paper_title} - {journal}"
+        return f"{name} added {paper_title} - {journal}"
 
 
 class FeedGenerator(object):
