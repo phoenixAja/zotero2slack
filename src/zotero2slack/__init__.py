@@ -3,6 +3,8 @@
 
 import pathlib
 
+from collections import defaultdict
+
 import click
 import html2text
 import requests
