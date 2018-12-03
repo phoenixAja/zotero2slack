@@ -2,6 +2,8 @@
 # and writing them out to Slack
 
 import pathlib
+import subprocess
+import sys
 import time
 
 import click
@@ -12,6 +14,32 @@ import yaml
 
 text_maker = html2text.HTML2Text()
 text_maker.body_width = 0
+
+
+def maybe_exit_process():
+    # get all zotero2slack pids
+    pids = subprocess.run(
+        "pgrep zotero2slack",
+        shell=True,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+    ).stdout.split()
+
+    cmds = 0
+    for pid in pids:
+        with open(pathlib.Path("/proc") / pid / "cmdline") as f:
+            # get the cmdline and match against this script
+            line = f.read().split("\x00")[1]
+            if line == sys.argv[0]:
+                cmds += 1
+
+    # if there are more than one, exit this one
+    if cmds > 1:
+        print("existing process found, exiting", file=sys.stderr)
+        sys.exit(0)
+    else:
+        # otherwise, take a short nap before starting
+        time.sleep(5)
 
 
 # this formats a JSON entry and makes a nice Slack message with
@@ -75,6 +103,8 @@ class FeedGenerator(object):
 )
 @click.option("--build-cache", is_flag=True)
 def main(config_file, build_cache):
+    maybe_exit_process()
+
     with open(config_file) as f:
         config = yaml.load(f)
 
