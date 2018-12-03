@@ -57,7 +57,7 @@ class FeedGenerator(object):
         entries = requests.get(self.url).json()
 
         res = []
-        for entry in map(format_jason, entries):
+        for entry in map(format_json, entries):
             if entry not in self.most_recent:
                 res.append(entry)
                 self.most_recent.append(entry)
