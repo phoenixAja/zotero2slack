@@ -53,6 +53,7 @@ def format_json(entry):
     journal = text_maker.handle(
         entry["data"].get("journalAbbreviation", "")
         or entry["data"].get("publicationTitle", "")
+        or entry["data"].get("libraryCatalog", "")
         or "some journal"
     ).strip()
     paper_title = text_maker.handle(entry["data"]["title"]).strip()
@@ -89,9 +90,15 @@ class FeedGenerator(object):
         return res
 
     def post(self):
-        for entry in self.get_new():
+        posts = self.get_new()
+        if not posts:
+            return False
+
+        for entry in posts:
             payload = {"channel": self.channel, "username": self.user, "text": entry}
             requests.post(url=self.webhook, json=payload)
+
+        return True
 
 
 @click.command()
@@ -144,12 +151,14 @@ def main(config_file, build_cache):
 
         return
 
-    try:
-        while True:
-            for user, feed_gen in feed_gens.items():
-                feed_gen.post()
-                cache[user] = feed_gen.most_recent
-            time.sleep(interval)
-    finally:
-        with cache_file.open("w") as out:
-            yaml.dump(cache, out, default_flow_style=False)
+    while True:
+        new_posts = False
+        for user, feed_gen in feed_gens.items():
+            new_posts = new_posts or feed_gen.post()
+            cache[user] = feed_gen.most_recent
+
+        if new_posts:
+            with cache_file.open("w") as out:
+                yaml.dump(cache, out, default_flow_style=False)
+
+        time.sleep(interval)
