@@ -2,9 +2,6 @@
 # and writing them out to Slack
 
 import pathlib
-import subprocess
-import sys
-import time
 
 import click
 import html2text
@@ -14,32 +11,6 @@ import yaml
 
 text_maker = html2text.HTML2Text()
 text_maker.body_width = 0
-
-
-def maybe_exit_process():
-    # get all zotero2slack pids
-    pids = subprocess.run(
-        "pgrep zotero2slack",
-        shell=True,
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-    ).stdout.split()
-
-    cmds = 0
-    for pid in pids:
-        with open(pathlib.Path("/proc") / pid / "cmdline") as f:
-            # get the cmdline and match against this script
-            line = f.read().split("\x00")[1]
-            if line == sys.argv[0]:
-                cmds += 1
-
-    # if there are more than one, exit this one
-    if cmds > 1:
-        print("existing process found, exiting", file=sys.stderr)
-        sys.exit(0)
-    else:
-        # otherwise, take a short nap before starting
-        time.sleep(5)
 
 
 # this formats a JSON entry and makes a nice Slack message with
@@ -90,15 +61,9 @@ class FeedGenerator(object):
         return res
 
     def post(self):
-        posts = self.get_new()
-        if not posts:
-            return False
-
-        for entry in posts:
+        for entry in self.get_new():
             payload = {"channel": self.channel, "username": self.user, "text": entry}
             requests.post(url=self.webhook, json=payload)
-
-        return True
 
 
 @click.command()
@@ -110,8 +75,6 @@ class FeedGenerator(object):
 )
 @click.option("--build-cache", is_flag=True)
 def main(config_file, build_cache):
-    maybe_exit_process()
-
     with open(config_file) as f:
         config = yaml.load(f)
 
@@ -121,7 +84,6 @@ def main(config_file, build_cache):
         raise ValueError("User for each feed should be unique")
 
     cache_file = pathlib.Path(config["cache_file"])
-    interval = int(config["interval"])
     keep = int(config["keep"])
 
     if cache_file.exists():
@@ -145,20 +107,10 @@ def main(config_file, build_cache):
     if build_cache:
         for user, feed_gen in feed_gens.items():
             cache[user] = feed_gen.get_new()
-
-        with cache_file.open("w") as out:
-            yaml.dump(cache, out, default_flow_style=False)
-
-        return
-
-    while True:
-        new_posts = False
+    else:
         for user, feed_gen in feed_gens.items():
-            new_posts = new_posts or feed_gen.post()
+            feed_gen.post()
             cache[user] = feed_gen.most_recent
 
-        if new_posts:
-            with cache_file.open("w") as out:
-                yaml.dump(cache, out, default_flow_style=False)
-
-        time.sleep(interval)
+    with cache_file.open("w") as out:
+        yaml.dump(cache, out, default_flow_style=False)
