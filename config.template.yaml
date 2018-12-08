@@ -1,5 +1,4 @@
 cache_file: /path/to/cache_file
-interval: 900 # seconds between updates
 keep: 10 # articles to keep in cache
 feeds:
   - user: "username to post with"

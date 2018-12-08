@@ -20,4 +20,4 @@ $ python setup.py install
 
 You should make a `config.yaml` file in `$HOME/.config/zotero2slack` that contains the necessary info for it to work. A template file is provided in the repo. You can include multiple different feeds/channels for a single Slack workspace. In the config file you should specify a path for caching. If you lose the cache file you can repopulate it (without posting) by running with the `--build-cache` option.
 
-By default, it will checkout the feed(s) every 15 minutes. You can customize this in the config file with the `interval`
+Previous versions of this project would run forever in a loop, but this made configuration a little cumbersome because it required restarting the script. The current version only runs once, and if you want periodic updates you can write a cronjob.
