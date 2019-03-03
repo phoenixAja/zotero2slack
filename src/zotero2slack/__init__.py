@@ -48,7 +48,8 @@ class FeedGenerator(object):
         self.keep = keep
 
     def get_new(self):
-        entries = requests.get(self.url).json()
+        params = {"start": 0, "limit": 3, "format": "json", "sort": "dateAdded"}
+        entries = requests.get(self.url, params=params).json()
 
         res = []
         for entry in map(format_json, entries):
