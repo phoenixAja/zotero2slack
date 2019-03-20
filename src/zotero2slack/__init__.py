@@ -89,7 +89,7 @@ def main(config_file, build_cache):
 
     if cache_file.exists():
         with cache_file.open() as f:
-            cache = yaml.load(f)
+            cache = yaml.load(f) or dict()
     else:
         cache = dict()
 
