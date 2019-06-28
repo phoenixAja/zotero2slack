@@ -1,0 +1,10 @@
+name: zotero2slack
+channels:
+  - defaults
+dependencies:
+  - pip
+  - python
+  - pip:
+    - click
+    - html2text
+    - requests
