@@ -47,8 +47,8 @@ class FeedGenerator(object):
         self.most_recent = most_recent or []
         self.keep = keep
 
-    def get_new(self):
-        params = {"start": 0, "limit": 3, "format": "json", "sort": "dateAdded"}
+    def get_new(self, limit=3):
+        params = {"start": 0, "limit": limit, "format": "json", "sort": "dateAdded"}
         entries = requests.get(self.url, params=params).json()
 
         res = []
@@ -77,7 +77,7 @@ class FeedGenerator(object):
 @click.option("--build-cache", is_flag=True)
 def main(config_file, build_cache):
     with open(config_file) as f:
-        config = yaml.load(f)
+        config = yaml.safe_load(f)
 
     feed_names = [feed["user"] for feed in config["feeds"]]
 
@@ -89,7 +89,7 @@ def main(config_file, build_cache):
 
     if cache_file.exists():
         with cache_file.open() as f:
-            cache = yaml.load(f) or dict()
+            cache = yaml.safe_load(f) or dict()
     else:
         cache = dict()
 
@@ -107,7 +107,7 @@ def main(config_file, build_cache):
 
     if build_cache:
         for user, feed_gen in feed_gens.items():
-            cache[user] = feed_gen.get_new()
+            cache[user] = feed_gen.get_new(limit=keep)
     else:
         for user, feed_gen in feed_gens.items():
             feed_gen.post()
