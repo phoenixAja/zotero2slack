@@ -64,6 +64,7 @@ class FeedGenerator(object):
     def post(self):
         for entry in self.get_new():
             payload = {"channel": self.channel, "username": self.user, "text": entry}
+            print(payload, "\n")
             requests.post(url=self.webhook, json=payload)
 
 
@@ -78,6 +79,8 @@ class FeedGenerator(object):
 def main(config_file, build_cache):
     with open(config_file) as f:
         config = yaml.safe_load(f)
+
+    print(config)
 
     feed_names = [feed["user"] for feed in config["feeds"]]
 
@@ -101,7 +104,7 @@ def main(config_file, build_cache):
             feed["url"],
             feed["channel"],
             feed["webhook"],
-            most_recent=cache.get(feed["user"], []),
+            most_recent=cache.get(feed["user"]),
             keep=keep,
         )
 
@@ -115,3 +118,6 @@ def main(config_file, build_cache):
 
     with cache_file.open("w") as out:
         yaml.dump(cache, out, default_flow_style=False)
+
+if __name__ == "__main__":
+    main()
