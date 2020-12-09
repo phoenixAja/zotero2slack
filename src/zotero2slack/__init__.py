@@ -38,18 +38,24 @@ def format_json(entry):
 
 
 class FeedGenerator(object):
-    def __init__(self, user, url, channel, webhook, most_recent=None, keep=10):
+    def __init__(self, user, url, channel, webhook, most_recent=None, keep=10, zotero_key=None):
         self.user = user
         self.url = url
         self.channel = channel
         self.webhook = webhook
+        self.zotero_key = zotero_key
 
         self.most_recent = most_recent or []
         self.keep = keep
 
+
     def get_new(self, limit=3):
         params = {"start": 0, "limit": limit, "format": "json", "sort": "dateAdded"}
-        entries = requests.get(self.url, params=params).json()
+        if self.zotero_key:
+            headers = {"Authorization": f"Bearer {self.zotero_key}"}
+            entries = requests.get(self.url, params=params, headers=headers).json()
+        else:
+            entries = requests.get(self.url, params=params).json()
 
         res = []
         for entry in map(format_json, entries):
@@ -98,14 +104,24 @@ def main(config_file, build_cache):
 
     feed_gens = dict()
 
+
     for feed in config["feeds"]:
+        feed_generator_kwargs = {
+            "most_recent": cache.get(feed["user"]),
+            "keep": keep,
+        }
+
+        try:
+            feed_generator_kwargs["zotero_key"] = feed["zotero_key"]
+        except KeyError:
+            print("no zotero api key provided")
+
         feed_gens[feed["user"]] = FeedGenerator(
             feed["user"],
             feed["url"],
             feed["channel"],
             feed["webhook"],
-            most_recent=cache.get(feed["user"]),
-            keep=keep,
+            **feed_generator_kwargs
         )
 
     if build_cache:
